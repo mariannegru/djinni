@@ -32,13 +32,6 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     return self;
 }
 
-- (const std::shared_ptr<::testsuite::UsesSingleLanguageListeners>&) cppRef
-{
-    return _cppRefHandle.get();
-}
-
-// DBUsesSingleLanguageListenersCppProxy methods
-
 - (void)callForObjC:(nullable id<DBObjcOnlyListener>)l {
     try {
         _cppRefHandle.get()->callForObjC(::djinni_generated::ObjcOnlyListener::toCpp(l));
@@ -69,35 +62,34 @@ namespace djinni_generated {
 
 class UsesSingleLanguageListeners::ObjcProxy final
 : public ::testsuite::UsesSingleLanguageListeners
-, public ::djinni::ObjcProxyCache::Handle<ObjcType>
+, private ::djinni::ObjcProxyBase<ObjcType>
 {
+    friend class ::djinni_generated::UsesSingleLanguageListeners;
 public:
-    using Handle::Handle;
-
-    // UsesSingleLanguageListeners methods
+    using ObjcProxyBase::ObjcProxyBase;
     void callForObjC(const std::shared_ptr<::testsuite::ObjcOnlyListener> & c_l) override
     {
         @autoreleasepool {
-            [Handle::get() callForObjC:(::djinni_generated::ObjcOnlyListener::fromCpp(c_l))];
+            [djinni_private_get_proxied_objc_object() callForObjC:(::djinni_generated::ObjcOnlyListener::fromCpp(c_l))];
         }
     }
     std::shared_ptr<::testsuite::ObjcOnlyListener> returnForObjC() override
     {
         @autoreleasepool {
-            auto objcpp_result_ = [Handle::get() returnForObjC];
+            auto objcpp_result_ = [djinni_private_get_proxied_objc_object() returnForObjC];
             return ::djinni_generated::ObjcOnlyListener::toCpp(objcpp_result_);
         }
     }
     void callForJava(const std::shared_ptr<::testsuite::JavaOnlyListener> & c_l) override
     {
         @autoreleasepool {
-            [Handle::get() callForJava:(::djinni_generated::JavaOnlyListener::fromCpp(c_l))];
+            [djinni_private_get_proxied_objc_object() callForJava:(::djinni_generated::JavaOnlyListener::fromCpp(c_l))];
         }
     }
     std::shared_ptr<::testsuite::JavaOnlyListener> returnForJava() override
     {
         @autoreleasepool {
-            auto objcpp_result_ = [Handle::get() returnForJava];
+            auto objcpp_result_ = [djinni_private_get_proxied_objc_object() returnForJava];
             return ::djinni_generated::JavaOnlyListener::toCpp(objcpp_result_);
         }
     }
@@ -124,7 +116,7 @@ auto UsesSingleLanguageListeners::fromCppOpt(const CppOptType& cpp) -> ObjcType
         return nil;
     }
     if (auto cppPtr = dynamic_cast<ObjcProxy*>(cpp.get())) {
-        return cppPtr->Handle::get();
+        return cppPtr->djinni_private_get_proxied_objc_object();
     }
     return ::djinni::get_cpp_proxy<DBUsesSingleLanguageListenersCppProxy>(cpp);
 }

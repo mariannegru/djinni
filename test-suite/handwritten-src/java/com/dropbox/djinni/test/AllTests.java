@@ -23,7 +23,8 @@ public class AllTests extends TestSuite {
         mySuite.addTestSuite(DurationTest.class);
         mySuite.addTestSuite(MockRecordTest.class);
         mySuite.addTestSuite(WcharTest.class);
-        mySuite.addTestSuite(InterfaceInheritanceTest.class);
+        mySuite.addTestSuite(AndroidParcelableTest.class);
+		mySuite.addTestSuite(InterfaceInheritanceTest.class);
         return mySuite;
     }
 

@@ -31,13 +31,6 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     return self;
 }
 
-- (const std::shared_ptr<::testsuite::UserToken>&) cppRef
-{
-    return _cppRefHandle.get();
-}
-
-// DBUserTokenCppProxy methods
-
 - (nonnull NSString *)whoami {
     try {
         auto objcpp_result_ = _cppRefHandle.get()->whoami();
@@ -49,16 +42,15 @@ namespace djinni_generated {
 
 class UserToken::ObjcProxy final
 : public ::testsuite::UserToken
-, public ::djinni::ObjcProxyCache::Handle<ObjcType>
+, private ::djinni::ObjcProxyBase<ObjcType>
 {
+    friend class ::djinni_generated::UserToken;
 public:
-    using Handle::Handle;
-
-    // UserToken methods
+    using ObjcProxyBase::ObjcProxyBase;
     std::string whoami() override
     {
         @autoreleasepool {
-            auto objcpp_result_ = [Handle::get() whoami];
+            auto objcpp_result_ = [djinni_private_get_proxied_objc_object() whoami];
             return ::djinni::String::toCpp(objcpp_result_);
         }
     }
@@ -85,7 +77,7 @@ auto UserToken::fromCppOpt(const CppOptType& cpp) -> ObjcType
         return nil;
     }
     if (auto cppPtr = dynamic_cast<ObjcProxy*>(cpp.get())) {
-        return cppPtr->Handle::get();
+        return cppPtr->djinni_private_get_proxied_objc_object();
     }
     return ::djinni::get_cpp_proxy<DBUserTokenCppProxy>(cpp);
 }
